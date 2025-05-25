@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡Bienvenidos a clase!</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    let count = 30;
+    const targetURL = "/pdf-viewer.html";
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Script de redirección iniciado.');
+      const countdown = document.getElementById("count");
+      const interval = setInterval(() => {
+        count--;
+        countdown.textContent = count;
+        if (count <= 0) {
+          clearInterval(interval);
+          console.log(`Redireccionando a ${targetURL}`);
+          window.location.href = targetURL;
+        }
+      }, 1000);
+    });
+  </script>
+</head>
+<body>
+  <h1>👋 ¡Bienvenidos a la clase!</h1>
+  <p>Conectate al Wi-Fi:</p>
+  <p>📶 <strong>Nombre:</strong> Profe Riki<br>
+     🔐 <strong>Contraseña:</strong> 12345678</p>
+
+  <p>📷 Escaneá este código QR:</p>
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=http://192.168.0.100:3000/landing.html" alt="QR Landing">
+
+  <p style="margin-top: 20px; font-size: 1.2rem;">Redireccionando en: <span id="count">30</span> segundos...</p>
+
+  <a href="/pdf-viewer.html">
+    <button style="margin-top: 15px;">👉 Ingresar ahora</button>
+  </a>
+</body>
+</html>
