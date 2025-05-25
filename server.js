@@ -7,6 +7,13 @@ const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
+
+// Asegurar que el directorio de PDFs existe
+const pdfsDir = path.join(__dirname, 'public', 'pdfs');
+if (!fs.existsSync(pdfsDir)) {
+  fs.mkdirSync(pdfsDir, { recursive: true });
+}
+
 const io = socketIo(server, {
   cors: {
     origin: "*",
@@ -18,11 +25,15 @@ const io = socketIo(server, {
   pingInterval: 25000
 });
 
-// Middleware para subir archivos
+// Middleware para subir archivos con configuración mejorada
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
   useTempFiles: true,
-  tempFileDir: '/tmp/'
+  tempFileDir: path.join(__dirname, 'temp'),
+  createParentPath: true,
+  abortOnLimit: true,
+  responseOnLimit: 'El archivo excede el tamaño máximo permitido',
+  debug: true
 }));
 
 // Middleware para controlar caché
@@ -51,19 +62,34 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }));
 
-// Ruta para subir PDF
+// Ruta para subir PDF con validaciones mejoradas
 app.post('/upload', (req, res) => {
   if (!req.files || !req.files.pdf) {
     return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
   }
 
   const pdfFile = req.files.pdf;
+
+  // Validar que sea un PDF
+  if (!pdfFile.mimetype.includes('pdf')) {
+    return res.status(400).json({ success: false, message: 'Solo se permiten archivos PDF.' });
+  }
+
   const uploadPath = path.join(__dirname, 'public', 'pdfs', pdfFile.name);
+
+  // Asegurar que el directorio existe
+  if (!fs.existsSync(path.dirname(uploadPath))) {
+    fs.mkdirSync(path.dirname(uploadPath), { recursive: true });
+  }
 
   pdfFile.mv(uploadPath, (err) => {
     if (err) {
       console.error('❌ Error al mover el archivo:', err);
-      return res.status(500).json({ success: false, message: 'Error al guardar el archivo.' });
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error al guardar el archivo.',
+        error: err.message 
+      });
     }
 
     // Emitir evento de nuevo PDF con información adicional
