@@ -1,0 +1,124 @@
+const socket = io();
+const container = document.getElementById('pdf-container');
+const fileInput = document.getElementById('file-input');
+const pageNumElem = document.getElementById('page-num');
+const pageCountElem = document.getElementById('page-count');
+
+let pdfDoc = null;
+let currentPage = 1;
+let totalPages = 0;
+
+// =====================
+// PDF.js Config
+// =====================
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+loadPDF('pdfs/lectura.pdf');
+
+// =====================
+// Función: Cargar PDF
+// =====================
+function loadPDF(url) {
+  pdfjsLib.getDocument(url).promise.then((pdf) => {
+    pdfDoc = pdf;
+    totalPages = pdf.numPages;
+    currentPage = 1;
+    pageCountElem.textContent = totalPages;
+    renderPage(currentPage);
+  });
+}
+
+// =====================
+// Función: Renderizar Página
+// =====================
+function renderPage(num) {
+  pdfDoc.getPage(num).then((page) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const viewport = page.getViewport({ scale: 1.5 });
+
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    page.render({ canvasContext: ctx, viewport }).promise.then(() => {
+      container.innerHTML = '';
+      container.appendChild(canvas);
+      pageNumElem.textContent = currentPage;
+      socket.emit('page-change', currentPage);
+    });
+  });
+}
+
+// =====================
+// Navegación entre páginas
+// =====================
+function nextPage() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderPage(currentPage);
+  }
+}
+
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    renderPage(currentPage);
+  }
+}
+
+// =====================
+// Funciones remotas
+// =====================
+function girarRuleta() {
+  const rand = Math.floor(Math.random() * 360);
+  socket.emit('spinRuleta', { angle: rand });
+}
+
+function mostrarRuleta() {
+  socket.emit('mostrar-ruleta');
+  window.open('/ruleta.html', '_blank');
+}
+
+function volverAlPDF() {
+socket.emit('volver-pdf');
+}
+
+// =====================
+// Eventos del DOM
+// =====================
+window.addEventListener('DOMContentLoaded', () => {
+  const volverBtn = document.getElementById('volver-pdf-btn');
+  if (volverBtn) {
+    volverBtn.addEventListener('click', volverAlPDF);
+  } else {
+    console.warn('⚠️ Botón volver-pdf-btn no encontrado en el DOM.');
+  }
+
+  const ruletaBtn = document.getElementById('mostrar-ruleta-btn');
+  if (ruletaBtn) {
+    ruletaBtn.addEventListener('click', mostrarRuleta);
+  }
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      const formData = new FormData();
+      formData.append('pdf', file);
+
+      fetch('/upload', {
+        method: 'POST',
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            loadPDF(`pdfs/${data.filename}`);
+          } else {
+            alert('Error al subir el archivo.');
+          }
+        })
+        .catch((err) => {
+          console.error('Error al subir el archivo:', err);
+        });
+    }
+  });
+});

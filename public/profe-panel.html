@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel del Profe</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <h1>🎤 Panel del Profe</h1>
+
+  <div id="controls">
+    <input type="file" id="file-input" accept=".pdf" />
+    <button onclick="prevPage()">⬅️ Anterior</button>
+    <span>Página: <span id="page-num">1</span> / <span id="page-count">?</span></span>
+    <button onclick="nextPage()">➡️ Siguiente</button>
+  </div>
+
+  <button onclick="mostrarRuleta()">🎯 Mostrar Ruleta</button>
+  <button id="volver-pdf-btn">📄 Volver a PDF</button> 
+
+  <div id="pdf-container"></div>
+
+  <!-- SCRIPTS -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="./profe-panel.js"></script>
+</body>
+</html>

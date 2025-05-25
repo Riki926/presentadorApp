@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visor del Estudiante</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>👨‍🎓 Visor del Estudiante</h1>
+
+  <div id="pdf-container"></div>
+
+  <div id="ruleta-container" style="display: none; margin-top: 20px;">
+    <iframe src="ruleta.html" width="100%" height="400" frameborder="0"></iframe>
+  </div>
+  
+
+  <!-- SCRIPTS -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="./pdf-client.js"></script>
+</body>
+</html>

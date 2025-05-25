@@ -1,0 +1,20 @@
+# Dependencias
+node_modules/
+
+# Archivos de entorno
+.env
+
+# Archivos PDF subidos
+public/pdfs/*
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Directorios de IDE
+.vscode/
+.idea/ 

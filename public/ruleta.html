@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ruleta de la Clase 🎯</title>
+  <link rel="stylesheet" href="ruleta.css">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="ruleta.js" defer></script>
+</head>
+<body>
+
+  <h1>🎯 Ruleta de la Clase</h1>
+  <button id="spin">🎲 Girar</button>
+
+  <div id="ruleta-container">
+    <!-- Flecha indicadora -->
+<div id="pointer"></div>
+
+    <canvas id="wheel" width="500" height="500"></canvas>
+    <div id="pointer"></div>
+  </div>
+  
+<!-- 
+  <button id="eliminar-pregunta">🗑️ Eliminar Pregunta Seleccionada</button> -->
+
+
+  <h2 id="resultado">Resultado: --</h2>
+
+  <div id="editar-opciones">
+    <h3>Editar opciones:</h3>
+    <textarea id="opciones-input" rows="6" cols="30"></textarea>
+    <br>
+    <button id="actualizar-opciones">Actualizar Ruleta</button>
+  </div>
+
+  <!-- 🚨 Modal (nuevo agregado) -->
+  <div id="modal">
+    <div id="modal-content">
+      <span id="modal-text"></span>
+      <br><br>
+      <button id="cerrar-modal">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    if (typeof socket !== 'undefined') {
+      socket.on('volver-pdf', () => {
+        window.location.href = '/pdf-viewer.html';
+      });
+    }
+  </script>
+
+
+
+</body>
+</html>
