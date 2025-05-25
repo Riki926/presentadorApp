@@ -180,3 +180,8 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`🟢 Servidor corriendo en http://localhost:${PORT}`);
   console.log(`🟢 También accesible en la red local usando la IP de tu computadora`);
 });
+
+// Ruta raíz para servir el HTML principal
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
