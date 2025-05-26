@@ -74,8 +74,6 @@ function loadPDF(url) {
     totalPages = pdf.numPages;
     currentPage = 1;
     renderPage(currentPage);
-    const parts = url.split('/');
-    currentPDFName = parts[parts.length - 1];
     currentPDFUrl = url;
     
     // Limpiar timeout ya que la carga fue exitosa
@@ -120,8 +118,11 @@ socket.on('page-change', (page) => {
 socket.on('new-pdf', (data) => {
   console.log('Nuevo PDF recibido:', data);
   if (data && data.url) {
+    currentPDFName = data.filename;
     loadPDF(data.url);
   } else if (typeof data === 'string') {
+    const parts = data.split('/');
+    currentPDFName = parts[parts.length - 1];
     loadPDF(`pdfs/${data}`);
   } else {
     console.error('Formato de datos de nuevo PDF inesperado:', data);
@@ -148,16 +149,17 @@ socket.on('volver-pdf', () => {
 
 // Función para descargar el PDF actual
 function downloadPDF() {
-  if (!currentPDFUrl) {
+  if (!currentPDFUrl || !currentPDFName) {
     alert('No hay PDF disponible para descargar');
     return;
   }
   
   try {
-    const downloadUrl = currentPDFUrl;
+    const downloadUrl = currentPDFUrl.replace(/\/upload\//, '/upload/' + encodeURIComponent(currentPDFName) + '/');
+    
     const link = document.createElement('a');
     link.href = downloadUrl;
-    link.setAttribute('download', currentPDFName || 'documento.pdf');
+    link.setAttribute('download', currentPDFName);
     link.setAttribute('target', '_blank');
     document.body.appendChild(link);
     link.click();
