@@ -26,7 +26,7 @@ const upload = multer({ storage: storage });
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const fileUpload = require('express-fileupload');
+
 const path = require('path');
 const fs = require('fs');
 
@@ -49,17 +49,6 @@ const io = socketIo(server, {
   pingTimeout: 60000,
   pingInterval: 25000
 });
-
-// Middleware para subir archivos con configuración mejorada
-app.use(fileUpload({
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
-  useTempFiles: true,
-  tempFileDir: path.join(__dirname, 'temp'),
-  createParentPath: true,
-  abortOnLimit: true,
-  responseOnLimit: 'El archivo excede el tamaño máximo permitido',
-  debug: true
-}));
 
 // Middleware para controlar caché
 app.use((req, res, next) => {
@@ -104,50 +93,6 @@ app.post('/upload', upload.single('archivo'), (req, res) => {
 });
 
 
-// // Ruta para subir PDF con validaciones mejoradas
-// app.post('/upload', (req, res) => {
-//   if (!req.files || !req.files.pdf) {
-//     return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
-//   }
-
-//   const pdfFile = req.files.pdf;
-
-//   // Validar que sea un PDF
-//   if (!pdfFile.mimetype.includes('pdf')) {
-//     return res.status(400).json({ success: false, message: 'Solo se permiten archivos PDF.' });
-//   }
-
-//   const uploadPath = path.join(__dirname, 'public', 'pdfs', pdfFile.name);
-
-//   // Asegurar que el directorio existe
-//   if (!fs.existsSync(path.dirname(uploadPath))) {
-//     fs.mkdirSync(path.dirname(uploadPath), { recursive: true });
-//   }
-
-//   pdfFile.mv(uploadPath, (err) => {
-//     if (err) {
-//       console.error('❌ Error al mover el archivo:', err);
-//       return res.status(500).json({ 
-//         success: false, 
-//         message: 'Error al guardar el archivo.',
-//         error: err.message 
-//       });
-//     }
-
-//     // Emitir evento de nuevo PDF con información adicional
-//     io.emit('new-pdf', {
-//       filename: pdfFile.name,
-//       size: pdfFile.size,
-//       timestamp: Date.now()
-//     });
-    
-//     res.status(200).json({ 
-//       success: true, 
-//       filename: pdfFile.name,
-//       size: pdfFile.size
-//     });
-//   });
-// });
 
 // Ruta para descargar PDF con manejo de caché
 app.get('/download/:filename', (req, res) => {
