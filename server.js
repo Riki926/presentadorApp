@@ -1,3 +1,28 @@
+
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+// Configuración de Cloudinary usando variables de entorno
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Almacenamiento de archivos directamente en Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'presentadorApp', // Puedes cambiar el nombre de la carpeta en Cloudinary
+    resource_type: 'auto',    // Detecta automáticamente si es imagen o PDF
+  },
+});
+const upload = multer({ storage: storage });
+
+
+
+
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -62,50 +87,67 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }));
 
-// Ruta para subir PDF con validaciones mejoradas
-app.post('/upload', (req, res) => {
-  if (!req.files || !req.files.pdf) {
+
+app.post('/upload', upload.single('archivo'), (req, res) => {
+  if (!req.file) {
     return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
   }
 
-  const pdfFile = req.files.pdf;
+  // Cloudinary ya almacenó el archivo y Multer agregó la info a req.file
+  const fileUrl = req.file.path; // esta es la URL pública del archivo en Cloudinary
 
-  // Validar que sea un PDF
-  if (!pdfFile.mimetype.includes('pdf')) {
-    return res.status(400).json({ success: false, message: 'Solo se permiten archivos PDF.' });
-  }
-
-  const uploadPath = path.join(__dirname, 'public', 'pdfs', pdfFile.name);
-
-  // Asegurar que el directorio existe
-  if (!fs.existsSync(path.dirname(uploadPath))) {
-    fs.mkdirSync(path.dirname(uploadPath), { recursive: true });
-  }
-
-  pdfFile.mv(uploadPath, (err) => {
-    if (err) {
-      console.error('❌ Error al mover el archivo:', err);
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Error al guardar el archivo.',
-        error: err.message 
-      });
-    }
-
-    // Emitir evento de nuevo PDF con información adicional
-    io.emit('new-pdf', {
-      filename: pdfFile.name,
-      size: pdfFile.size,
-      timestamp: Date.now()
-    });
-    
-    res.status(200).json({ 
-      success: true, 
-      filename: pdfFile.name,
-      size: pdfFile.size
-    });
+  res.json({
+    success: true,
+    message: 'Archivo subido con éxito',
+    url: fileUrl
   });
 });
+
+
+// // Ruta para subir PDF con validaciones mejoradas
+// app.post('/upload', (req, res) => {
+//   if (!req.files || !req.files.pdf) {
+//     return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
+//   }
+
+//   const pdfFile = req.files.pdf;
+
+//   // Validar que sea un PDF
+//   if (!pdfFile.mimetype.includes('pdf')) {
+//     return res.status(400).json({ success: false, message: 'Solo se permiten archivos PDF.' });
+//   }
+
+//   const uploadPath = path.join(__dirname, 'public', 'pdfs', pdfFile.name);
+
+//   // Asegurar que el directorio existe
+//   if (!fs.existsSync(path.dirname(uploadPath))) {
+//     fs.mkdirSync(path.dirname(uploadPath), { recursive: true });
+//   }
+
+//   pdfFile.mv(uploadPath, (err) => {
+//     if (err) {
+//       console.error('❌ Error al mover el archivo:', err);
+//       return res.status(500).json({ 
+//         success: false, 
+//         message: 'Error al guardar el archivo.',
+//         error: err.message 
+//       });
+//     }
+
+//     // Emitir evento de nuevo PDF con información adicional
+//     io.emit('new-pdf', {
+//       filename: pdfFile.name,
+//       size: pdfFile.size,
+//       timestamp: Date.now()
+//     });
+    
+//     res.status(200).json({ 
+//       success: true, 
+//       filename: pdfFile.name,
+//       size: pdfFile.size
+//     });
+//   });
+// });
 
 // Ruta para descargar PDF con manejo de caché
 app.get('/download/:filename', (req, res) => {

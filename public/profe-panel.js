@@ -122,3 +122,37 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+
+
+// Manejo de subida del archivo
+document.getElementById('upload-form').addEventListener('submit', async function (e) {
+  e.preventDefault(); // Previene el comportamiento por defecto del formulario
+
+  const input = document.getElementById('file-input');
+  const file = input.files[0];
+  if (!file) {
+    alert('Por favor seleccioná un archivo PDF.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('archivo', file);
+
+  try {
+    const response = await fetch('/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      alert('✅ Archivo subido con éxito');
+    } else {
+      alert('⚠️ Error: ' + result.message);
+    }
+  } catch (err) {
+    console.error('Error al subir:', err);
+    alert('❌ Error inesperado al subir el archivo');
+  }
+});

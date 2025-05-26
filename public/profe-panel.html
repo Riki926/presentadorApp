@@ -10,11 +10,21 @@
   <h1>🎤 Panel del Profe</h1>
 
   <div id="controls">
-    <input type="file" id="file-input" accept=".pdf" />
+    <form id="upload-form" enctype="multipart/form-data">
+  <input type="file" name="archivo" id="file-input" accept=".pdf" />
+  <button type="submit">Subir PDF</button>
+</form>
+
     <button onclick="prevPage()">⬅️ Anterior</button>
     <span>Página: <span id="page-num">1</span> / <span id="page-count">?</span></span>
     <button onclick="nextPage()">➡️ Siguiente</button>
   </div>
+  <!-- <div id="controls">
+    <input type="file" id="file-input" accept=".pdf" />
+    <button onclick="prevPage()">⬅️ Anterior</button>
+    <span>Página: <span id="page-num">1</span> / <span id="page-count">?</span></span>
+    <button onclick="nextPage()">➡️ Siguiente</button>
+  </div> -->
 
   <button onclick="mostrarRuleta()">🎯 Mostrar Ruleta</button>
   <button id="volver-pdf-btn">📄 Volver a PDF</button> 
