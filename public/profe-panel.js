@@ -131,5 +131,5 @@ window.addEventListener('DOMContentLoaded', () => {
       console.error('Error al subir:', err);
       alert('❌ Error inesperado al subir el archivo');
     }
-  });
-});
+  })
+})
