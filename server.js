@@ -77,20 +77,45 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 
-app.post('/upload', upload.single('archivo'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
-  }
+app.post('/upload', (req, res) => {
+  upload.single('archivo')(req, res, (err) => {
+    if (err) {
+      console.error('❌ Error al subir a Cloudinary:', err);
+      return res.status(500).json({
+        success: false,
+        message: 'Error en la subida a Cloudinary',
+        error: err.message
+      });
+    }
 
-  // Cloudinary ya almacenó el archivo y Multer agregó la info a req.file
-  const fileUrl = req.file.path; // esta es la URL pública del archivo en Cloudinary
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
+    }
 
-  res.json({
-    success: true,
-    message: 'Archivo subido con éxito',
-    url: fileUrl
+    const fileUrl = req.file.path;
+    res.json({
+      success: true,
+      message: 'Archivo subido con éxito',
+      url: fileUrl
+    });
   });
 });
+
+
+// app.post('/upload', upload.single('archivo'), (req, res) => {
+//   if (!req.file) {
+//     return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
+//   }
+
+//   // Cloudinary ya almacenó el archivo y Multer agregó la info a req.file
+//   const fileUrl = req.file.path; // esta es la URL pública del archivo en Cloudinary
+
+//   res.json({
+//     success: true,
+//     message: 'Archivo subido con éxito',
+//     url: fileUrl
+//   });
+// });
 
 
 
