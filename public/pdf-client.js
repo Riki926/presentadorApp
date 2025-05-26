@@ -6,6 +6,7 @@ let currentPage = 1;
 let totalPages = 0;
 let currentPDFName = null;
 let loadingTimeout = null;
+let currentPDFUrl = null;
 
 // Configurar PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
@@ -75,6 +76,7 @@ function loadPDF(url) {
     renderPage(currentPage);
     const parts = url.split('/');
     currentPDFName = parts[parts.length - 1];
+    currentPDFUrl = url;
     
     // Limpiar timeout ya que la carga fue exitosa
     clearTimeout(loadingTimeout);
@@ -146,16 +148,15 @@ socket.on('volver-pdf', () => {
 
 // Función para descargar el PDF actual
 function downloadPDF() {
-  if (!currentPDFName) {
+  if (!currentPDFUrl) {
     alert('No hay PDF disponible para descargar');
     return;
   }
   
   try {
-    const downloadUrl = `/download/${currentPDFName}`;
+    const downloadUrl = currentPDFUrl;
     const link = document.createElement('a');
     link.href = downloadUrl;
-    link.setAttribute('download', currentPDFName);
     link.setAttribute('target', '_blank');
     document.body.appendChild(link);
     link.click();
