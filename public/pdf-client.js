@@ -117,12 +117,13 @@ socket.on('page-change', (page) => {
 // Cuando se sube un nuevo PDF
 socket.on('new-pdf', (data) => {
   console.log('Nuevo PDF recibido:', data);
-  if (typeof data === 'string') {
-    // Compatibilidad con versión anterior
+  if (data && data.url) {
+    loadPDF(data.url);
+  } else if (typeof data === 'string') {
     loadPDF(`pdfs/${data}`);
   } else {
-    // Nueva versión con información adicional
-    loadPDF(`pdfs/${data.filename}`);
+    console.error('Formato de datos de nuevo PDF inesperado:', data);
+    alert('Error al recibir información del nuevo PDF.');
   }
 });
 
