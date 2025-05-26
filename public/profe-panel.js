@@ -12,7 +12,7 @@ let totalPages = 0;
 // PDF.js Config
 // =====================
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-loadPDF('pdfs/lectura.pdf');
+
 
 // =====================
 // Función: Cargar PDF
@@ -98,32 +98,6 @@ window.addEventListener('DOMContentLoaded', () => {
     ruletaBtn.addEventListener('click', mostrarRuleta);
   }
 
-  fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      const formData = new FormData();
-      formData.append('pdf', file);
-
-      fetch('/upload', {
-        method: 'POST',
-        body: formData,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            loadPDF(`pdfs/${data.filename}`);
-          } else {
-            alert('Error al subir el archivo.');
-          }
-        })
-        .catch((err) => {
-          console.error('Error al subir el archivo:', err);
-        });
-    }
-  });
-});
-
-
 
 // Manejo de subida del archivo
 document.getElementById('upload-form').addEventListener('submit', async function (e) {
@@ -151,6 +125,8 @@ document.getElementById('upload-form').addEventListener('submit', async function
     } else {
       alert('⚠️ Error: ' + result.message);
     }
+    loadPDF(result.url);  // << nueva línea para cargar desde Cloudinary
+
   } catch (err) {
     console.error('Error al subir:', err);
     alert('❌ Error inesperado al subir el archivo');
