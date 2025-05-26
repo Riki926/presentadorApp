@@ -88,19 +88,19 @@ app.post('/upload', (req, res) => {
       }
 
       // Emitir evento de nuevo PDF
-      io.emit('new-pdf', {
+    io.emit('new-pdf', {
         filename: req.file.originalname,
         url: req.file.path,
         size: req.file.size,
-        timestamp: Date.now()
-      });
-
-      res.status(200).json({ 
-        success: true, 
+      timestamp: Date.now()
+    });
+    
+    res.status(200).json({ 
+      success: true, 
         filename: req.file.originalname,
         url: req.file.path,
         size: req.file.size
-      });
+    });
     } catch (error) {
       console.error('❌ Error al subir archivo:', error);
       res.status(500).json({ 
@@ -120,7 +120,7 @@ app.get('/pdfs', async (req, res) => {
       .sort_by('created_at', 'desc')
       .max_results(30)
       .execute();
-
+      
     res.json({
       success: true,
       pdfs: result.resources
