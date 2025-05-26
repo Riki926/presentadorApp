@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('Botón de descarga agregado');
 });
 
-// Cargar PDF por defecto
-loadPDF('pdfs/lectura.pdf');
+// Eliminada la carga de PDF por defecto local
+// loadPDF('pdfs/lectura.pdf');
 
 // =====================
 // FUNCIONES PDF
