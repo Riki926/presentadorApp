@@ -98,37 +98,38 @@ window.addEventListener('DOMContentLoaded', () => {
     ruletaBtn.addEventListener('click', mostrarRuleta);
   }
 
+  // Manejo de subida del archivo
+  document.getElementById('upload-form').addEventListener('submit', async function (e) {
+    e.preventDefault(); // Previene el comportamiento por defecto del formulario
 
-// Manejo de subida del archivo
-document.getElementById('upload-form').addEventListener('submit', async function (e) {
-  e.preventDefault(); // Previene el comportamiento por defecto del formulario
-
-  const input = document.getElementById('file-input');
-  const file = input.files[0];
-  if (!file) {
-    alert('Por favor seleccioná un archivo PDF.');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('archivo', file);
-
-  try {
-    const response = await fetch('/upload', {
-      method: 'POST',
-      body: formData
-    });
-
-    const result = await response.json();
-    if (response.ok) {
-      alert('✅ Archivo subido con éxito');
-    } else {
-      alert('⚠️ Error: ' + result.message);
+    const input = document.getElementById('file-input');
+    const file = input.files[0];
+    if (!file) {
+      alert('Por favor seleccioná un archivo PDF.');
+      return;
     }
-    loadPDF(result.url);  // << nueva línea para cargar desde Cloudinary
 
-  } catch (err) {
-    console.error('Error al subir:', err);
-    alert('❌ Error inesperado al subir el archivo');
-  }
+    const formData = new FormData();
+    formData.append('pdf', file);
+
+    try {
+      const response = await fetch('/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert('✅ Archivo subido con éxito');
+        if (result.url) {
+          loadPDF(result.url);
+        }
+      } else {
+        alert('⚠️ Error: ' + (result.message || 'Error desconocido'));
+      }
+    } catch (err) {
+      console.error('Error al subir:', err);
+      alert('❌ Error inesperado al subir el archivo');
+    }
+  });
 });
