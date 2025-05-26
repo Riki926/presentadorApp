@@ -157,6 +157,7 @@ function downloadPDF() {
     const downloadUrl = currentPDFUrl;
     const link = document.createElement('a');
     link.href = downloadUrl;
+    link.setAttribute('download', currentPDFName || 'documento.pdf');
     link.setAttribute('target', '_blank');
     document.body.appendChild(link);
     link.click();
