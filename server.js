@@ -28,7 +28,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({ 
   storage: storage,
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB
+    fileSize: 100 * 1024 * 1024 // Aumentado a 100MB
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/pdf') {
@@ -59,37 +59,57 @@ const io = socketIo(server, {
 });
 
 // Ruta para subir PDF
-app.post('/upload', upload.single('pdf'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'No se subió ningún archivo.' 
+app.post('/upload', (req, res) => {
+  upload.single('pdf')(req, res, async (err) => {
+    if (err instanceof multer.MulterError) {
+      // Error específico de Multer (ej. tamaño de archivo excedido)
+      console.error('❌ Error de Multer al subir archivo:', err);
+      return res.status(400).json({
+        success: false,
+        message: `Error de subida: ${err.message}` // Mensaje de error de Multer
+      });
+    } else if (err) {
+      // Otros errores
+      console.error('❌ Error general al subir archivo:', err);
+      return res.status(500).json({
+        success: false,
+        message: 'Error interno al subir el archivo',
+        error: err.message
       });
     }
 
-    // Emitir evento de nuevo PDF
-    io.emit('new-pdf', {
-      filename: req.file.originalname,
-      url: req.file.path,
-      size: req.file.size,
-      timestamp: Date.now()
-    });
+    // Si no hay errores de Multer o generales, procede con la lógica de Cloudinary
+    try {
+      if (!req.file) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'No se subió ningún archivo.' 
+        });
+      }
 
-    res.status(200).json({ 
-      success: true, 
-      filename: req.file.originalname,
-      url: req.file.path,
-      size: req.file.size
-    });
-  } catch (error) {
-    console.error('❌ Error al subir archivo:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error al subir el archivo',
-      error: error.message 
-    });
-  }
+      // Emitir evento de nuevo PDF
+      io.emit('new-pdf', {
+        filename: req.file.originalname,
+        url: req.file.path,
+        size: req.file.size,
+        timestamp: Date.now()
+      });
+
+      res.status(200).json({ 
+        success: true, 
+        filename: req.file.originalname,
+        url: req.file.path,
+        size: req.file.size
+      });
+    } catch (error) {
+      console.error('❌ Error al subir archivo:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Error al subir el archivo',
+        error: error.message 
+      });
+    }
+  });
 });
 
 // Ruta para obtener la lista de PDFs
